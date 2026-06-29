@@ -15,6 +15,8 @@ public class MenuController : MonoBehaviour {
 	public List<Text> highscorePointsText;
 	public List<Text> highscoreNameText;
 
+	private const string BACKEND_URL = "https://supercube-backend.onrender.com";
+
 	public void showMainMenu() {
 		mainMenu.gameObject.SetActive (true);
 		howTo.gameObject.SetActive (false);
@@ -57,17 +59,39 @@ public class MenuController : MonoBehaviour {
 		credits.gameObject.SetActive (true);
 	}
 
-	IEnumerator getHighscore() {
-		string url = "https://webuser.hs-furtwangen.de/~doerflim/Spiele3D/SuperCube/showhighscore.php";
+	IEnumerator getHighscore()
+	{
+		string url = BACKEND_URL + "/highscores";
 
-		WWW www = new WWW (url);
+		WWW www = new WWW(url);
 		yield return www;
 
-		HighscoreData score = JsonUtility.FromJson<HighscoreData> (www.text);
+		if (!string.IsNullOrEmpty(www.error))
+		{
+			Debug.LogWarning("Highscore laden fehlgeschlagen: " + www.error);
+			// Platzhalter setzen damit die UI nicht leer bleibt
+			for (int i = 0; i < highscorePointsText.Count; i++)
+			{
+				highscorePointsText[i].text = "-";
+				highscoreNameText[i].text = "-";
+			}
+			yield break;
+		}
 
-		for(int i = 0; i < highscorePointsText.Count; i++) {
-			highscorePointsText[i].text = score.scores[i].points;
-			highscoreNameText [i].text = score.scores [i].name;
+		HighscoreData score = JsonUtility.FromJson<HighscoreData>(www.text);
+
+		for (int i = 0; i < highscorePointsText.Count; i++)
+		{
+			if (i < score.scores.Length)
+			{
+				highscorePointsText[i].text = score.scores[i].points;
+				highscoreNameText[i].text = score.scores[i].name;
+			}
+			else
+			{
+				highscorePointsText[i].text = "-";
+				highscoreNameText[i].text = "-";
+			}
 		}
 	}
 
