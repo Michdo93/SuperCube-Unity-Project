@@ -11,7 +11,7 @@ public class GUIManager : MonoBehaviour {
 	public Text label;
 
 	private bool dataLoaded = false;
-	private string nameStrings = "/ExternalData/strings.json";
+	private string nameStrings = "./ExternalData/strings.json";
 
 	public void Awake() {
 		StaticClass.instance = this;
